@@ -1,0 +1,12 @@
+version: '3.3'
+
+services:
+  sensorizer:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: "./entry_point.sh"
+    environment:
+      - EVENT_HUB_ADDRESS=${EVENT_HUB_ADDRESS}
+      - EVENT_HUB_SAS_POLICY=${EVENT_HUB_SAS_POLICY}
+      - EVENT_HUB_SAS_KEY=${EVENT_HUB_SAS_KEY}

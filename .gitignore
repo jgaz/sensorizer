@@ -114,3 +114,5 @@ src/backend/api/hierarchy/*.so
 src/backend/bin
 src/backend/include
 
+# Automatic version control
+src/sensorizer/version.py

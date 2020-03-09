@@ -23,6 +23,11 @@ class SensorConfig:
     """
 
     base_value: float  # The base of the scale for the sensor values
-    frequency: float  # The frequency of the sensor in seconds
+    sampling: float  # The sampling rate of the sensor in seconds
     number_values: int
-    number_ephocs: int
+    total_seconds: int
+    model: int
+
+
+SENSOR_MODEL_RITHMIC = 1
+SENSOR_MODEL_RANDOM = 2

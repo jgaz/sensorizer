@@ -4,7 +4,7 @@ from datetime import datetime
 from typing import List
 
 import numpy as np
-from sensorizer.data_classes import TimeserieRecord
+from sensorizer.data_classes import SENSOR_MODEL_RITHMIC, SensorConfig, TimeserieRecord
 
 logger = logging.getLogger()
 
@@ -78,21 +78,30 @@ class RealisticSensorEmulator:
 
         total_readings = total_seconds / sampling_rates
 
-        return list(zip(base_values, sampling_rates, total_readings, total_seconds,))
+        sensor_models = np.ones(self.number_of_sensors) * SENSOR_MODEL_RITHMIC
+
+        return list(
+            zip(
+                base_values,
+                sampling_rates,
+                total_readings,
+                total_seconds,
+                sensor_models,
+            )
+        )
 
     def get_all_readings(self):
         time_window = self.end_datetime - self.start_datetime
         total_seconds = int(time_window.total_seconds())
         sensor_list = self.build_sensor_list(total_seconds)
+        sensor_configs = [SensorConfig(*c) for c in sensor_list]
 
-        iterator = map(self.get_sensor_reading, sensor_list)
+        iterator = map(self.get_rithmic_reading, sensor_configs)
         return list(iterator)
 
-    def get_sensor_reading(self, sensor_config):
-        base_value, frequency, _, number_ephocs = sensor_config
+    def get_rithmic_reading(self, sensor_config: SensorConfig):
         start_time = self.start_datetime.timestamp()
-        ephoch = 0
-        frequency = int(frequency)
+        sampling = int(sensor_config.sampling)
         ts_record = TimeserieRecord(
             data_type="STD",
             plant="GRK",
@@ -102,13 +111,14 @@ class RealisticSensorEmulator:
             value=0,
             ts=datetime.now(),
         )
-        for _ in range(int(number_ephocs)):
-            ephoch += 1
-            if ephoch % frequency == 0:
-                ts_record.value = base_value + (
-                    np.sin(ephoch * np.pi / 180) * 0.1 * base_value
+        for current_second in range(int(sensor_config.total_seconds)):
+            if current_second % sampling == 0:
+                ts_record.value = sensor_config.base_value + (
+                    np.sin(current_second * np.pi / 180)
+                    * 0.1
+                    * sensor_config.base_value
                 )
-                ts_record.ts = start_time + ephoch
+                ts_record.ts = start_time + current_second
                 yield ts_record
 
     def get_random_reading(

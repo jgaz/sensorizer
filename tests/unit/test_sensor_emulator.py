@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta
 
+from sensorizer.data_classes import SENSOR_MODEL_RITHMIC, SensorConfig
 from sensorizer.sensor_emulator import RealisticSensorEmulator
 
 
@@ -21,7 +22,7 @@ class TestSensorEmulator:
         )
         results = se.build_sensor_list(3600)
         assert len(results) == 20
-        assert len(results[0]) == 4
+        assert type(results[0]) == tuple
 
     def test_get_sensor_reading(self):
         end_datetime = datetime.now()
@@ -30,10 +31,14 @@ class TestSensorEmulator:
             20, start_datetime=start_datetime, end_datetime=end_datetime
         )
 
-        iterator = se.get_sensor_reading([1.0, 5, 0, 100])
+        iterator = se.get_rithmic_reading(
+            SensorConfig(1.0, 5, 0, 100, SENSOR_MODEL_RITHMIC)
+        )
         results = list(iterator)
         assert len(results) == 20
-        iterator = se.get_sensor_reading([1.0, 1, 0, 100])
+        iterator = se.get_rithmic_reading(
+            SensorConfig(1.0, 1, 0, 100, SENSOR_MODEL_RITHMIC)
+        )
         results = list(iterator)
         assert len(results) == 100
 

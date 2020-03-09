@@ -50,28 +50,35 @@ class RealisticSensorEmulator:
             )
         return np.array(values)
 
-    def build_sensor_list(self, total_seconds: int) -> List:
+    def build_sensor_list(self, total_seconds: int) -> List[List[float]]:
+        """
+        Builds a list of sensors with its main configuration parameters:
+        base value, sampling rate, total_readings and total_seconds for
+        the time window
+
+        Arguments:
+            total_seconds {int} -- Time window lenght
+
+        Returns:
+            List[List[float]] -- list of configuration parameters,
+            1 row is one sensor
+        """
         base_values = self.generate_base_values()
 
         time_slices = np.array([1.0, 60.0, 3600.0])
         frequency_distribution_count = (
             np.array([0.15, 0.65, 0.2]) * self.number_of_sensors
         )
-        frequencies = (
+        sampling_rates = np.concatenate(
             np.array([np.ones(int(x)) for x in frequency_distribution_count])
             * time_slices
         )
-        frequencies = np.array([item for sublist in frequencies for item in sublist])
-        number_values = (np.ones(self.number_of_sensors) * total_seconds) / frequencies
 
-        return list(
-            zip(
-                base_values,
-                frequencies,
-                number_values,
-                np.ones(self.number_of_sensors) * total_seconds,
-            )
-        )
+        total_seconds = np.ones(self.number_of_sensors) * total_seconds
+
+        total_readings = total_seconds / sampling_rates
+
+        return list(zip(base_values, sampling_rates, total_readings, total_seconds,))
 
     def get_all_readings(self):
         time_window = self.end_datetime - self.start_datetime

@@ -12,7 +12,6 @@ class TestSensorEmulator:
         )
         results = se.generate_base_values()
         assert len(results) == 20
-        # assert len(list(filter(lambda x: x > 1.5, results[0]))) == 0
 
     def test_build_sensor_list(self):
         end_datetime = datetime.now()

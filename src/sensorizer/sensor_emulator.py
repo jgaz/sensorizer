@@ -10,12 +10,6 @@ logger = logging.getLogger()
 
 
 class RealisticSensorEmulator:
-    oscilation = 0.01
-    average: float
-    crisis_per_day: float
-    level_changes_per_day: float
-    frequency: float
-
     def __init__(
         self, number_of_sensors: int, start_datetime: datetime, end_datetime: datetime
     ):
@@ -121,13 +115,7 @@ class RealisticSensorEmulator:
                 ts_record.ts = start_time + current_second
                 yield ts_record
 
-    def get_random_reading(
-        self,
-        start_datetime: datetime,
-        frequency: int,
-        base_value: float,
-        number_values: int,
-    ):
+    def get_random_reading(self, sensor_config: SensorConfig):
         return 0
 
     def transform_delay(

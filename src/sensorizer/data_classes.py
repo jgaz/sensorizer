@@ -7,12 +7,12 @@ class TimeserieRecord:
     Class for time series
     """
 
-    ts: float
-    data_type: str  # 3
-    plant: str  # GKR string(3)
+    ts: float  # epoch
+    data_type: str  # string(3)
+    plant: str  # string(3)
     quality: float
-    schema: str  # v0.3 string(6)
-    tag: str  # 1218.13FYM0780_MAS_Y string(50)
+    schema: str  # string(6)
+    tag: str  # UUID
     value: float
 
 
@@ -27,6 +27,12 @@ class SensorConfig:
     number_values: int
     total_seconds: int
     model: int
+
+    """
+    TODO:
+    crisis_per_hour: float
+    level_changes_per_hour: float
+    """
 
 
 SENSOR_MODEL_RITHMIC = 1

@@ -7,6 +7,11 @@ services:
       dockerfile: Dockerfile
     command: "./entry_point.sh"
     environment:
+      - SINK_TYPE=${EVENT_SINK_TYPE}
+      - RUNNING_MODE=${RUNNING_MODE}
+      - NUMBER_OF_SENSORS=${NUMBER_OF_SENSORS}
+      - NUMBER_OF_HOURS=${NUMBER_OF_HOURS}
+      - EVENT_DUMP_FILENAME=${EVENT_DUMP_FILENAME}
       - EVENT_HUB_ADDRESS=${EVENT_HUB_ADDRESS}
       - EVENT_HUB_SAS_POLICY=${EVENT_HUB_SAS_POLICY}
       - EVENT_HUB_SAS_KEY=${EVENT_HUB_SAS_KEY}

@@ -1,5 +1,5 @@
 SINK_TYPE_FILE = "file"
 SINK_TYPE_EVENT_HUB = "event_hub"
 
-RUNNING_MODE_REAL_TIME = "real_time"
-RUNNING_MODE_BATCH = "batch"
+STORAGE_MODE_REAL_TIME = "real_time"
+STORAGE_MODE_BATCH = "batch"

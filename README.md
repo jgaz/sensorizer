@@ -84,6 +84,24 @@ export EVENT_HUB_SAS_KEY="<SAS_KEY>"
 ```
 
 
+### Sensor format
+
+```python
+@dataclass
+class TimeserieRecord:
+    """
+    Class for time series
+    """
+
+    ts: float  # epoch
+    data_type: str  # string(3)
+    plant: str  # string(3)
+    quality: float
+    schema: str  # string(6)
+    tag: str  # UUID
+    value: float
+```
+
 ## Built With
 
 * Python 3.7

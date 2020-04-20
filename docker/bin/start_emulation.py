@@ -9,6 +9,7 @@ from sensorizer import (
     SINK_TYPE_EVENT_HUB,
 )
 from sensorizer.sensor_emulator import RealisticSensorEmulator
+from sensorizer.queue_interface import QueueInterface
 
 debug_level = int(os.environ.get("DEBUG_LEVEL", logging.INFO))
 logging.basicConfig(level=debug_level)
@@ -16,14 +17,15 @@ logging.basicConfig(level=debug_level)
 if __name__ == "__main__":
     sink_type = os.environ.get("SINK_TYPE") or exit("SINK_TYPE needed")
     running_mode = os.environ.get("RUNNING_MODE") or exit("RUNNING_MODE needed")
-    number_of_sensors = int(os.environ.get("NUMBER_OF_SENSORS", 100))
+    number_of_sensors = int(os.environ.get("NUMBER_OF_SENSORS", 10000))
     number_of_hours = int(os.environ.get("NUMBER_OF_HOURS", 1))
     logging.info(
         f"# of sensors: {number_of_sensors} # hours: {number_of_hours} running mode: '{running_mode}'"
     )
 
+    queue = QueueInterface()  # This is needed for Mypy
     if sink_type == SINK_TYPE_EVENT_HUB:
-        from sensorizer.queue_interface import QueueEventHub
+        from sensorizer.queue_interface import QueueEventHub, QueueInterface
 
         address = os.environ.get("EVENT_HUB_ADDRESS") or exit(
             "EVENT_HUB_ADDRESS needed"
@@ -37,7 +39,7 @@ if __name__ == "__main__":
         from sensorizer.queue_interface import QueueLocalAvro
 
         filename = os.environ.get("EVENT_DUMP_FILENAME") or exit(
-            "EVENT_HUB_SAS_POLICY needed"
+            "EVENT_DUMP_FILENAME needed"
         )
         queue = QueueLocalAvro(filename)
     else:
@@ -48,29 +50,34 @@ if __name__ == "__main__":
     se = RealisticSensorEmulator(
         number_of_sensors, start_datetime=start_datetime, end_datetime=end_datetime
     )
-    readings = se.get_all_readings()
+    sensor_readers = se.get_all_sensor_readers()
     process_start_time = time.time()
-    while readings:
+
+    while sensor_readers:
         loop_start_time = time.time()
         empty_iterators = []
         data_points = []
 
-        for read in readings:
+        for reader in sensor_readers:
             try:
-                data_points.append(next(read))
+                point = next(reader)
+                if point:
+                    data_points.append(point)
             except StopIteration:
-                empty_iterators.append(read)
+                empty_iterators.append(reader)
 
         if running_mode == STORAGE_MODE_REAL_TIME:
             queue.send(data_points)
         elif running_mode == STORAGE_MODE_BATCH:
-            for i in range(0, len(data_points), 1000):
-                queue.batch_send(data_points[i : i + 1000])
+            for i in range(0, len(data_points), 10000):
+                queue.batch_send(data_points[i : i + 10000])
+
         for iterator_to_delete in empty_iterators:
-            readings.remove(iterator_to_delete)
-        logging.debug(
-            f"""#Datapoints:{len(data_points)} #Iterators to delete: {len(
-            empty_iterators)} Loop time: {time.time() - loop_start_time}"""
+            sensor_readers.remove(iterator_to_delete)
+
+        logging.info(
+            f"""#Datapoints:{len(data_points)} #Active iterators: {len(
+            sensor_readers)} Loop time: {time.time() - loop_start_time}"""
         )
 
     logging.info(
